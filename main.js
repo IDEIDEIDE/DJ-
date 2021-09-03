@@ -3,12 +3,15 @@ leftWristX=0
 leftWristY=0
 rightWristX=0
 rightWristY=0
+
+rightWristScore=0
+leftWristScore=0
 function preload(){
     soun = loadSound("music.mp3")
 }
 
 function setup(){
-    canvas = createCanvas(400,400)
+    canvas = createCanvas(500,500)
     canvas.center()
 
     video = createCapture(VIDEO)
@@ -26,9 +29,12 @@ function gotPoses(results){
 
         leftWristX = results[0].pose.leftWrist.x
         leftWristX = results[0].pose.leftWrist.y
+        leftWristScore = results[0].pose.keypoints[9].score
         rightWristX = results[0].pose.rightWrist.x
         rightWristX = results[0].pose.rightWrist.y
         console.log(leftWristX)
+        console.log(leftWristScore)
+        
 
     }
 }
@@ -39,13 +45,23 @@ function modelLoaded(){
 
 
 function draw(){
-    image(video, 0, 0, 400, 400)
-    circle(leftWristX, leftWristY, 30)
-    circle(rightWristX, rightWristY, 30)
-    fill(white)
+    image(video, 0, 0, 500, 500)    
+
+    if(leftWristScore > 0.02){
+        circle(leftWristX, leftWristY, 30)
+        fill("red")
+        stroke("red")
+        numberconverter1 = Number(leftWristY)
+        yeahbro = floor(numberconverter1)
+        boxedfish = yeahbro/500
+        soun.setVolume(boxedfish)
+        document.getElementById("volume").innerHTML = "Volume" + " = " + boxedfish;
+    }
+
+    
 }
 function play(){
         soun.play()
         soun.rate(1)
-        soun.volume(1)
+        soun.setVolume(1)
 }
