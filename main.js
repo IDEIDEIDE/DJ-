@@ -1,67 +1,100 @@
-var soun = ""
-leftWristX=0
-leftWristY=0
-rightWristX=0
-rightWristY=0
+song = "";
 
-rightWristScore=0
-leftWristScore=0
-function preload(){
-    soun = loadSound("music.mp3")
+function preload()
+{
+	song = loadSound("music.mp3");
 }
 
-function setup(){
-    canvas = createCanvas(500,500)
-    canvas.center()
+scoreRightWrist = 0;
+scoreLeftWrist = 0;
 
-    video = createCapture(VIDEO)
-    video.hide()
+rightWristX = 0;
+rightWristY = 0;
 
-    poseNet = ml5.poseNet(video, modelLoaded)
-    poseNet.on("pose", gotPoses)
+leftWristX = 0;
+leftWristY = 0;
+
+function setup() {
+	canvas =  createCanvas(600, 500);
+	canvas.center();
+
+	video = createCapture(VIDEO);
+	video.hide();
+
+	poseNet = ml5.poseNet(video, modelLoaded);
+	poseNet.on('pose', gotPoses);
+}
+
+function modelLoaded() {
+  console.log('PoseNet Is Initialized');
+}
+
+function gotPoses(results)
+{
+  if(results.length > 0)
+  {
+	console.log(results);
+	scoreRightWrist =  results[0].pose.keypoints[10].score;
+	scoreLeftWrist =  results[0].pose.keypoints[9].score;
+	console.log("scoreRightWrist = " + scoreRightWrist + " scoreLeftWrist = " + scoreLeftWrist);
+	
+	rightWristX = results[0].pose.rightWrist.x;
+	rightWristY = results[0].pose.rightWrist.y;
+	console.log("rightWristX = " + rightWristX +" rightWristY = "+ rightWristY);
+
+	leftWristX = results[0].pose.leftWrist.x;
+	leftWristY = results[0].pose.leftWrist.y;
+	console.log("leftWristX = " + leftWristX +" leftWristY = "+ leftWristY);
+		
+  }
+}
+
+function draw() {
+	image(video, 0, 0, 600, 500);
+
+	fill("#FF0000");
+	stroke("#FF0000");
+
+	if(scoreRightWrist > 0.1){
+		circle(rightWristX, rightWristY, 20)
+		if(rightWristY > 0 && rightWristY <= 100){
+			document.getElementById("speed").innerHTML = "Speed = 0.5x"
+			song.rate(0.5)
+		}
+		if(rightWristY > 100 && rightWristY <= 200){
+			document.getElementById("speed").innerHTML = "Speed = 1x"
+			song.rate(1)
+		}
+		if(rightWristY > 200 && rightWristY <= 300){
+			document.getElementById("speed").innerHTML = "Speed = 1.5x"
+			song.rate(1.5)
+		}
+		if(rightWristY > 300 && rightWristY <= 400){
+			document.getElementById("speed").innerHTML = "Speed = 2x"
+			song.rate(2)
+		}
+		if(rightWristY > 400){
+			document.getElementById("speed").innerHTML = "Speed = 2.5x"
+			song.rate(2.5)
+		}
+
+	}
+
+	if(scoreLeftWrist > 0.1)
+	{
+		circle(leftWristX,leftWristY,20);
+		InNumberleftWristY = Number(leftWristY); 
+		remove_decimals = floor(InNumberleftWristY);
+		volume = remove_decimals/500;
+		document.getElementById("volume").innerHTML = "Volume = " + volume;		
+		song.setVolume(volume);	
+	}
 
 }
 
-function gotPoses(results){
-    if(results.length>0){
-        console.log(results)
-
-
-        leftWristX = results[0].pose.leftWrist.x
-        leftWristX = results[0].pose.leftWrist.y
-        leftWristScore = results[0].pose.keypoints[9].score
-        rightWristX = results[0].pose.rightWrist.x
-        rightWristX = results[0].pose.rightWrist.y
-        console.log(leftWristX)
-        console.log(leftWristScore)
-        
-
-    }
-}
-
-function modelLoaded(){
-    console.log("model Loaded!")
-}
-
-
-function draw(){
-    image(video, 0, 0, 500, 500)    
-
-    if(leftWristScore > 0.02){
-        circle(leftWristX, leftWristY, 30)
-        fill("red")
-        stroke("red")
-        numberconverter1 = Number(leftWristY)
-        yeahbro = floor(numberconverter1)
-        boxedfish = yeahbro/500
-        soun.setVolume(boxedfish)
-        document.getElementById("volume").innerHTML = "Volume" + " = " + boxedfish;
-    }
-
-    
-}
-function play(){
-        soun.play()
-        soun.rate(1)
-        soun.setVolume(1)
+function play()
+{
+	song.play();
+	song.setVolume(1);
+	song.rate(1);
 }
